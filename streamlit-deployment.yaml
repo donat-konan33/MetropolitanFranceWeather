@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose-streamlit.yml
+    kompose.version: 1.35.0 (9532ceef3)
+  labels:
+    io.kompose.service: streamlit
+  name: streamlit
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      io.kompose.service: streamlit
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f docker-compose-streamlit.yml
+        kompose.version: 1.35.0 (9532ceef3)
+      labels:
+        io.kompose.service: streamlit
+
+    spec:
+      containers:
+        - args:
+            - streamlit
+            - run
+            - weatherdashboard/00_dashboard_introduction.py
+          env:
+            - name: PROJECT_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: streamlit-config
+                  key: PROJECT_ID
+            - name: DEEPSEEK_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: streamlit-secrets
+                  key: DEEPSEEK_API_KEY
+            - name: HUGGINGFACE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: streamlit-secrets
+                  key: HUGGINGFACE_API_KEY
+            - name: OPENAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: streamlit-secrets
+                  key: OPENAI_API_KEY
+            - name: PANDABI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: streamlit-secrets
+                  key: PANDABI_API_KEY
+          image: streamlit:latest
+          name: streamlit
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8501
+              protocol: TCP
+          stdin: true
+          tty: true
+          volumeMounts:
+            - mountPath: /app/.streamlit/
+              name: streamlit-secrets-volume
+
+      restartPolicy: Always
+      volumes:
+        - name: streamlit-secrets-volume
+          secret:
+            items:
+              - key: secrets.toml
+                path: secrets.toml
+            secretName: streamlit-secrets

@@ -1,1 +1,4 @@
 .env
+secrets.toml
+helm-airflow-values.yaml
+.streamlit/*

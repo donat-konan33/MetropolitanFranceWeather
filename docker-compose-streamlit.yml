@@ -1,0 +1,24 @@
+services:
+  streamlit:
+    image: europe-west1-docker.pkg.dev/weather-team/docker-hub/streamlit:latest
+    restart: always
+    command: ["streamlit", "run", "weatherdashboard/00_dashboard_introduction.py"]
+    environment:
+      - PROJECT_ID=$PROJECT_ID
+      - OPENAI_API_KEY=$OPENAI_API_KEY
+      - PANDABI_API_KEY=$PANDABI_API_KEY
+      - DEEPSEEK_API_KEY=$DEEPSEEK_API_KEY
+      - HUGGINGFACE_API_KEY=$HUGGINGFACE_API_KEY
+
+    secrets:
+      - streamlit-secrets
+
+    ports:
+      - 8501:8501
+
+    stdin_open: true
+    tty: true
+
+secrets:
+  streamlit-secrets:
+    file: ./.streamlit/secrets.toml
